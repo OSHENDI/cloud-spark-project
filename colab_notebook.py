@@ -105,8 +105,9 @@ print("all 4 stats completed")
 print("data preparation")
 
 dfclean = df.dropna()
-rowsremoved = numrows - dfclean.count()
-print("rows after cleaning " + str(dfclean.count()))
+cleanrowcount = dfclean.count()
+rowsremoved = numrows - cleanrowcount
+print("rows after cleaning " + str(cleanrowcount))
 print("rows removed " + str(rowsremoved))
 
 if len(numericcols) < 2:
@@ -240,7 +241,7 @@ print("scalability benchmarking")
 print("testing with different core counts")
 
 def runbenchmark(numcores, datapath, nclusters, ntrees):
-    sparkbench = SparkSession.builder.appName("benchmark" + str(numcores)).master("local[" + str(numcores) + "]").config("spark.driver.memory", "4g").getOrCreate()
+    sparkbench = SparkSession.builder.appName("benchmark" + str(numcores)).master("local[" + str(numcores) + "]").config("spark.driver.memory", "4g").config("spark.sql.shuffle.partitions", str(numcores * 2)).getOrCreate()
     
     dfb = sparkbench.read.option("header", "true").option("inferSchema", "true").csv(datapath)
     dfb = dfb.dropna()
@@ -264,7 +265,6 @@ def runbenchmark(numcores, datapath, nclusters, ntrees):
     RandomForestRegressor(featuresCol="features", labelCol=targetc, numTrees=ntrees, seed=42).fit(dfmlb)
     
     totaltime = time.time() - start
-    sparkbench.stop()
     
     return totaltime
 
@@ -314,7 +314,7 @@ allresults = {
         "numrows": int(numrows),
         "numcols": int(numcols),
         "numericcols": int(len(numericcols)),
-        "cleanrows": int(dfclean.count())
+        "cleanrows": int(cleanrowcount)
     },
     "mlresults": {
         "linearregression": {"rmse": float(round(lrrmse, 2)), "r2": float(round(lrr2, 4)), "time": float(round(lrtime, 2))},

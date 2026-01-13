@@ -22,7 +22,7 @@ Note: The app goes to sleep after being inactive for a while. If it shows a load
 
 1. Go to https://cloud-spark-project.streamlit.app
 2. Upload your results.json file from Google Drive
-3. View your processed results
+3. View the processed results
 
 ### Option 2: Run the Colab Notebook
 
